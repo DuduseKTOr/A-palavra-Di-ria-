@@ -1,0 +1,19 @@
+{
+  "name": "Palavra Diária — Plano de Leitura Bíblica",
+  "short_name": "Palavra Diária",
+  "description": "Leia a Bíblia inteira em 3 ou 5 anos, uma leitura por dia, com progresso salvo.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09151a",
+  "theme_color": "#0c1a1d",
+  "categories": ["lifestyle", "books", "education"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

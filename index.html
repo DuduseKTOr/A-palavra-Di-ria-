@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Palavra Diária — Plano de Leitura Bíblica</title>
+<meta name="description" content="Leia a Bíblia inteira em 3 ou 5 anos, uma leitura por dia, com o texto dentro do app e sem anúncios." />
+<meta name="theme-color" content="#0c1a1d" />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./icon-192.png" />
+<link rel="apple-touch-icon" href="./icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Palavra Diária" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+html,body{margin:0;background:#09151a;}
+#root{
+  --bg:#0c1a1d; --bg2:#0f2327; --surface:#14313a; --surface2:#173a44;
+  --line:rgba(201,162,75,.16); --line2:rgba(236,227,208,.08);
+  --ink:#ece3d0; --muted:#93a7a4; --muted2:#6f8582;
+  --gold:#c9a24b; --gold2:#e6c878; --sage:#86b09a;
+  min-height:100vh; width:100%;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(201,162,75,.14), rgba(201,162,75,0) 55%),
+    linear-gradient(180deg,#0c1a1d 0%, #0a161a 100%);
+  color:var(--ink);
+  font-family:'Instrument Sans',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+#root *{box-sizing:border-box;}
+.pb-wrap{max-width:600px;margin:0 auto;padding:calc(22px + env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom));}
+svg{display:block;}
+button{font-family:inherit;}
+
+.pb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pb-brand{display:flex;align-items:center;gap:8px;color:var(--gold2);
+  font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;letter-spacing:.3px;}
+.pb-brand svg{color:var(--gold);}
+.pb-icbtn{background:transparent;border:1px solid var(--line);color:var(--muted);
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;cursor:pointer;transition:.2s;}
+.pb-icbtn:hover{color:var(--gold2);border-color:var(--gold);}
+
+.pb-status{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pb-badge{font-size:12.5px;padding:6px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;
+  background:var(--surface);color:var(--muted);border:1px solid var(--line2);}
+.pb-badge.ok{color:var(--sage);border-color:rgba(134,176,154,.3);}
+.pb-badge.warn{color:var(--gold2);border-color:var(--line);cursor:pointer;}
+.pb-badge.flame{color:#e0a86a;border-color:rgba(224,168,106,.28);}
+.pb-badge.install{color:var(--gold2);border-color:var(--line);cursor:pointer;}
+
+.pb-hero{position:relative;background:linear-gradient(180deg,var(--surface2),var(--surface));
+  border:1px solid var(--line);border-radius:20px;padding:22px 20px 18px;margin-bottom:16px;overflow:hidden;animation:rise .5s ease both;}
+.pb-hero::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7;}
+.pb-hero.read::before{background:linear-gradient(90deg,transparent,var(--sage),transparent);}
+.pb-hero-eb{font-size:12.5px;color:var(--muted);margin:0 0 12px;letter-spacing:.2px;}
+.pb-hero-eb .cap{text-transform:capitalize;}
+.pb-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;letter-spacing:.6px;
+  text-transform:uppercase;padding:4px 9px;border-radius:7px;margin-bottom:12px;}
+.pb-tag.at{background:rgba(201,162,75,.14);color:var(--gold2);}
+.pb-tag.nt{background:rgba(134,176,154,.16);color:var(--sage);}
+.pb-tag.reflect{background:rgba(224,168,106,.14);color:#e6b985;}
+.pb-refs{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;align-items:flex-start;}
+.pb-ref{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:40px;line-height:1.05;color:var(--ink);
+  background:none;border:none;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:.2s;text-align:left;}
+.pb-ref svg{color:var(--gold);width:17px;height:17px;opacity:.75;}
+.pb-ref:hover{color:var(--gold2);}
+.pb-hero-ref{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;line-height:1.12;color:var(--ink);margin-bottom:14px;}
+.pb-hero-ref.small{font-size:25px;font-weight:500;font-style:italic;color:#ded3bd;}
+.pb-hero-note{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 14px;}
+.pb-linkbtn{background:none;border:none;padding:0;color:var(--gold2);cursor:pointer;font-size:13.5px;border-bottom:1px solid var(--line);}
+.pb-hero-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.pb-open{flex:1;min-width:150px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(180deg,var(--gold2),var(--gold));color:#20180a;font-weight:600;font-size:14.5px;
+  border:none;padding:13px 16px;border-radius:13px;transition:.2s;cursor:pointer;}
+.pb-open:hover{filter:brightness(1.06);}
+.pb-check{flex:1;min-width:150px;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:600;font-size:14.5px;
+  padding:13px 16px;border-radius:13px;cursor:pointer;transition:.2s;}
+.pb-check:hover{border-color:var(--gold);color:var(--gold2);}
+.pb-check.on{background:rgba(134,176,154,.16);border-color:rgba(134,176,154,.45);color:var(--sage);}
+.pb-hero-done{text-align:center;color:var(--gold2);}
+.pb-hero-done svg{color:var(--gold);margin:0 auto 8px;}
+
+.pb-notebox{margin-top:16px;padding-top:14px;border-top:1px solid var(--line2);}
+.pb-note-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted2);margin-bottom:7px;}
+.pb-note{width:100%;background:rgba(0,0,0,.16);border:1px solid var(--line2);border-radius:11px;color:var(--ink);
+  font-family:inherit;font-size:14px;padding:10px 12px;resize:vertical;line-height:1.5;}
+.pb-note::placeholder{color:var(--muted2);}
+.pb-note:focus{outline:none;border-color:var(--line);}
+
+.pb-card{background:var(--surface);border:1px solid var(--line2);border-radius:18px;padding:16px 18px;margin-bottom:14px;}
+.pb-collapse{width:100%;display:flex;align-items:center;justify-content:space-between;background:transparent;border:none;
+  color:var(--ink);font-size:15px;font-weight:500;cursor:pointer;padding:0;}
+.pb-collapse span{display:flex;align-items:center;gap:9px;}
+.pb-collapse span svg{color:var(--gold);}
+.pb-collapse .chev{transition:transform .25s;color:var(--muted);}
+.pb-collapse .chev.rot{transform:rotate(180deg);}
+
+.pb-prog-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px;}
+.pb-prog-pct{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:44px;line-height:1;color:var(--gold2);}
+.pb-prog-sub{font-size:12.5px;color:var(--muted);margin-top:2px;}
+.pb-prog-right{font-size:12.5px;color:var(--muted);text-align:right;}
+.pb-prog-right span{color:var(--ink);font-weight:600;font-size:15px;}
+.pb-bar{height:9px;background:rgba(0,0,0,.28);border-radius:999px;overflow:hidden;margin-bottom:16px;}
+.pb-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transition:width .6s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(201,162,75,.5);}
+.pb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.pb-stat{background:rgba(0,0,0,.14);border-radius:12px;padding:11px 10px;text-align:center;}
+.pb-stat-v{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:24px;color:var(--ink);line-height:1.1;}
+.pb-stat-v.sm{font-size:14px;font-family:'Instrument Sans',sans-serif;font-weight:600;line-height:1.25;}
+.pb-stat-l{font-size:10.5px;color:var(--muted2);margin-top:4px;line-height:1.3;}
+
+.pb-journey{margin-top:16px;}
+.pb-strand-group{margin-bottom:14px;}
+.pb-strand-title{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted2);margin:0 0 8px;}
+.pb-strand{display:flex;flex-wrap:wrap;gap:5px;}
+.pb-node{width:15px;height:15px;border-radius:5px;border:none;cursor:pointer;padding:0;transition:.2s;background:rgba(236,227,208,.09);}
+.pb-node.part{background:linear-gradient(135deg,var(--gold) 50%,rgba(236,227,208,.12) 50%);}
+.pb-node.full{background:var(--gold);box-shadow:0 0 7px rgba(201,162,75,.55);}
+.pb-node.sel{outline:2px solid var(--gold2);outline-offset:2px;}
+.pb-node:hover{transform:scale(1.18);}
+.pb-node-label{margin-top:12px;font-size:13px;color:var(--muted);min-height:18px;}
+.pb-node-label strong{color:var(--gold2);font-weight:600;}
+
+.pb-catch{margin-top:14px;display:flex;flex-direction:column;gap:7px;}
+.pb-catch-row{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.14);border:1px solid var(--line2);
+  border-radius:12px;padding:9px 11px;transition:.15s;}
+.pb-catch-row:hover{border-color:var(--line);}
+.pb-catch-row.done{background:rgba(134,176,154,.08);}
+.pb-cbox{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--muted2);display:grid;place-items:center;
+  color:#20180a;flex-shrink:0;transition:.15s;background:transparent;cursor:pointer;}
+.pb-cbox.on{background:var(--sage);border-color:var(--sage);}
+.pb-catch-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
+.pb-catch-ref{font-size:14.5px;color:var(--ink);font-weight:500;}
+.pb-catch-date{font-size:11.5px;color:var(--muted2);text-transform:capitalize;}
+.pb-catch-read{background:transparent;border:1px solid var(--line2);color:var(--gold2);border-radius:9px;
+  width:34px;height:34px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;}
+.pb-empty{color:var(--muted);font-size:13.5px;margin-top:12px;}
+
+.pb-set-line{font-size:13.5px;color:var(--muted);margin:0 0 12px;}
+.pb-set-line strong{color:var(--ink);}
+.pb-setbtn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--line);
+  color:var(--gold2);font-size:13.5px;padding:10px 14px;border-radius:11px;cursor:pointer;margin:0 8px 8px 0;}
+.pb-ios{font-size:12.5px;color:var(--muted);line-height:1.55;margin:8px 0 0;padding:11px 13px;background:rgba(0,0,0,.14);border-radius:11px;}
+.pb-ios strong{color:var(--ink);}
+.pb-confirm p{font-size:13.5px;color:var(--ink);margin:0 0 10px;}
+.pb-confirm-row{display:flex;gap:10px;}
+.pb-btn-ghost{flex:1;background:transparent;border:1px solid var(--line2);color:var(--muted);padding:10px;border-radius:11px;font-size:13.5px;cursor:pointer;}
+.pb-btn-danger{flex:1;background:rgba(190,90,70,.16);border:1px solid rgba(190,90,70,.4);color:#e2917f;padding:10px;border-radius:11px;font-size:13.5px;cursor:pointer;}
+
+.pb-foot{text-align:center;font-size:11px;color:var(--muted2);margin-top:20px;line-height:1.55;}
+.pb-foot strong{color:var(--muted);}
+
+.pb-setup{padding-top:34px;}
+.pb-glyph{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;background:rgba(201,162,75,.12);border:1px solid var(--line);color:var(--gold);margin-bottom:20px;}
+.pb-eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin:0 0 8px;}
+.pb-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:40px;line-height:1.08;margin:0 0 14px;color:var(--ink);}
+.pb-lead{font-size:14.5px;color:var(--muted);line-height:1.6;margin:0 0 26px;}
+.pb-lead strong{color:var(--ink);}
+.pb-flabel{font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted2);margin:0 0 10px;}
+.pb-years{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.pb-year{background:var(--surface);border:1px solid var(--line2);border-radius:15px;padding:15px;cursor:pointer;
+  text-align:left;transition:.2s;display:flex;flex-direction:column;gap:1px;}
+.pb-year:hover{border-color:var(--line);}
+.pb-year.on{border-color:var(--gold);background:linear-gradient(180deg,var(--surface2),var(--surface));box-shadow:0 0 0 1px var(--gold) inset;}
+.pb-year-n{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:32px;color:var(--gold2);line-height:1;}
+.pb-year-l{font-size:13px;color:var(--muted);margin-top:-2px;}
+.pb-year-h{font-size:11.5px;color:var(--muted2);margin-top:7px;line-height:1.3;}
+.pb-date{width:100%;background:var(--surface);border:1px solid var(--line2);border-radius:13px;color:var(--ink);
+  font-family:inherit;font-size:15px;padding:13px 15px;margin-bottom:26px;color-scheme:dark;}
+.pb-date:focus{outline:none;border-color:var(--gold);}
+.pb-cta{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(180deg,var(--gold2),var(--gold));
+  color:#20180a;font-weight:600;font-size:16px;padding:15px;border-radius:14px;border:none;cursor:pointer;transition:.2s;}
+.pb-cta:hover{filter:brightness(1.06);}
+.pb-fine{font-size:11.5px;color:var(--muted2);text-align:center;margin:14px 0 0;line-height:1.5;}
+
+/* ---------- Leitor ---------- */
+.rd{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;
+  background:radial-gradient(120% 60% at 50% 0%, rgba(201,162,75,.10), rgba(201,162,75,0) 50%), linear-gradient(180deg,#0d1c20,#0a151a);
+  animation:fade .25s ease;}
+.rd-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(14px + env(safe-area-inset-top)) 18px 12px;background:rgba(11,24,27,.82);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);}
+.rd-htxt{min-width:0;}
+.rd-sub{font-size:10.5px;color:var(--gold);letter-spacing:.7px;text-transform:uppercase;margin-bottom:1px;}
+.rd-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;color:var(--ink);line-height:1.05;}
+.rd-close{width:38px;height:38px;flex-shrink:0;border-radius:11px;border:1px solid var(--line);background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;}
+.rd-close:hover{color:var(--gold2);border-color:var(--gold);}
+.rd-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.rd-inner{max-width:620px;margin:0 auto;padding:22px 22px 34px;}
+.rd-v{font-family:'Cormorant Garamond',serif;font-size:21px;line-height:1.72;color:#e9e0cd;margin:0 0 3px;}
+.rd-n{font-family:'Instrument Sans',sans-serif;font-size:11px;font-weight:600;color:var(--gold);vertical-align:super;margin-right:6px;}
+.rd-credit{font-size:10.5px;color:var(--muted2);text-align:center;margin-top:26px;line-height:1.5;padding-top:14px;border-top:1px solid var(--line2);}
+.rd-loading{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--gold);padding:70px 20px;text-align:center;line-height:1.5;}
+.rd-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(201,162,75,.25);border-top-color:var(--gold);animation:spin .8s linear infinite;}
+.rd-foot{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;
+  padding:11px 16px calc(11px + env(safe-area-inset-bottom));background:rgba(11,24,27,.86);backdrop-filter:blur(10px);border-top:1px solid var(--line);}
+.rd-nav{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:11px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;}
+.rd-nav:hover{border-color:var(--gold);color:var(--gold2);}
+.rd-nav:disabled{opacity:.35;cursor:default;}
+.rd-mark{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:11px;padding:11px;cursor:pointer;font-weight:600;font-size:14px;
+  background:linear-gradient(180deg,var(--gold2),var(--gold));color:#20180a;border:none;}
+.rd-mark.on{background:rgba(134,176,154,.16);border:1px solid rgba(134,176,154,.45);color:var(--sage);}
+.rd-spacer{flex:1;}
+
+@keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+@keyframes fade{from{opacity:0;}to{opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold2);outline-offset:2px;}
+@media (max-width:380px){ .pb-ref{font-size:34px;} .pb-stats{grid-template-columns:1fr 1fr;} .rd-v{font-size:20px;} }
+@media (prefers-reduced-motion:reduce){ .pb-hero,.rd{animation:none;} .pb-bar-fill{transition:none;} .rd-spin{animation-duration:1.6s;} }
+</style>
+</head>
+<body>
+<div id="root" class="pb-app"></div>
+
+<script>
+"use strict";
+
+/* ---------------- Livros da Bíblia (66) ---------------- */
+const RAW_BOOKS = [
+  ["Gênesis","gn",50,"AT"],["Êxodo","ex",40,"AT"],["Levítico","lv",27,"AT"],["Números","nm",36,"AT"],
+  ["Deuteronômio","dt",34,"AT"],["Josué","js",24,"AT"],["Juízes","jz",21,"AT"],["Rute","rt",4,"AT"],
+  ["1 Samuel","1sm",31,"AT"],["2 Samuel","2sm",24,"AT"],["1 Reis","1rs",22,"AT"],["2 Reis","2rs",25,"AT"],
+  ["1 Crônicas","1cr",29,"AT"],["2 Crônicas","2cr",36,"AT"],["Esdras","ed",10,"AT"],["Neemias","ne",13,"AT"],
+  ["Ester","et",10,"AT"],["Jó","jó",42,"AT"],["Salmos","sl",150,"AT"],["Provérbios","pv",31,"AT"],
+  ["Eclesiastes","ec",12,"AT"],["Cânticos","ct",8,"AT"],["Isaías","is",66,"AT"],["Jeremias","jr",52,"AT"],
+  ["Lamentações","lm",5,"AT"],["Ezequiel","ez",48,"AT"],["Daniel","dn",12,"AT"],["Oséias","os",14,"AT"],
+  ["Joel","jl",3,"AT"],["Amós","am",9,"AT"],["Obadias","ob",1,"AT"],["Jonas","jn",4,"AT"],
+  ["Miquéias","mq",7,"AT"],["Naum","na",3,"AT"],["Habacuque","hc",3,"AT"],["Sofonias","sf",3,"AT"],
+  ["Ageu","ag",2,"AT"],["Zacarias","zc",14,"AT"],["Malaquias","ml",4,"AT"],
+  ["Mateus","mt",28,"NT"],["Marcos","mc",16,"NT"],["Lucas","lc",24,"NT"],["João","jo",21,"NT"],
+  ["Atos","atos",28,"NT"],["Romanos","rm",16,"NT"],["1 Coríntios","1co",16,"NT"],["2 Coríntios","2co",13,"NT"],
+  ["Gálatas","gl",6,"NT"],["Efésios","ef",6,"NT"],["Filipenses","fp",4,"NT"],["Colossenses","cl",4,"NT"],
+  ["1 Tessalonicenses","1ts",5,"NT"],["2 Tessalonicenses","2ts",3,"NT"],["1 Timóteo","1tm",6,"NT"],
+  ["2 Timóteo","2tm",4,"NT"],["Tito","tt",3,"NT"],["Filemom","fm",1,"NT"],["Hebreus","hb",13,"NT"],
+  ["Tiago","tg",5,"NT"],["1 Pedro","1pe",5,"NT"],["2 Pedro","2pe",3,"NT"],["1 João","1jo",5,"NT"],
+  ["2 João","2jo",1,"NT"],["3 João","3jo",1,"NT"],["Judas","jd",1,"NT"],["Apocalipse","ap",22,"NT"],
+];
+let _off = 0;
+const BOOKS = RAW_BOOKS.map(([name,abbr,chapters,testament]) => {
+  const b = {name,abbr,chapters,testament,offset:_off}; _off += chapters; return b;
+});
+const TOTAL_CHAPTERS = _off; // 1189
+const CHAPTER_META = [];
+BOOKS.forEach((b,bi) => { for (let c=1;c<=b.chapters;c++) CHAPTER_META.push({book:b.name,testament:b.testament,chapter:c,bi:bi,ci:c-1,g:CHAPTER_META.length}); });
+
+/* ---------------- Utilidades ---------------- */
+const DAY = 86400000;
+const YEAR_OPTIONS = [2,3,4,5];
+function buildPlan(years){
+  const totalDays = Math.round(years*365.25);
+  const cum = new Array(totalDays);
+  for (let i=0;i<totalDays;i++) cum[i] = Math.round(((i+1)*TOTAL_CHAPTERS)/totalDays);
+  return {totalDays,cum};
+}
+const dayStart = (i,cum) => (i>0 ? cum[i-1] : 0);
+const parseDate = (s) => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const todayMidnight = () => { const n=new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate()); };
+const toISO = (d) => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const dateForIndex = (startISO,idx) => new Date(parseDate(startISO).getTime()+idx*DAY);
+const fmtLong = (d) => d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+const fmtShort = (d) => d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short"});
+const fmtFull = (d) => d.toLocaleDateString("pt-BR",{day:"numeric",month:"long",year:"numeric"});
+const esc = (s) => String(s).replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const REFLECTIONS = [
+  "Releia o trecho de ontem devagar. Que palavra ficou com você?",
+  "Silêncio e oração. Escreva uma frase que Deus usou pra falar contigo.",
+  "Descanse na leitura da semana. Agradeça por três coisas de hoje.",
+  "Volte a um versículo que te marcou e guarde-o de cor hoje.",
+  "Respire fundo. Peça a Deus sabedoria pra viver o que você leu.",
+];
+
+/* ---------------- Ícones ---------------- */
+function ic(name,size){
+  size = size || 18;
+  const P = {
+    book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    check:'<polyline points="20 6 9 17 4 12"/>',
+    flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+    settings:'<line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/>',
+    sun:'<circle cx="12" cy="12" r="4"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/>',
+    feather:'<path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/>',
+    arrow:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+    left:'<polyline points="15 18 9 12 15 6"/>',
+    right:'<polyline points="9 18 15 12 9 6"/>',
+    rotate:'<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+    sparkles:'<path d="M12 2l2.2 6.5L21 11l-6.8 2.5L12 20l-2.2-6.5L3 11l6.8-2.5z"/>',
+    chevron:'<polyline points="6 9 12 15 18 9"/>',
+    pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+    download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+    x:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  };
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+(P[name]||"")+'</svg>';
+}
+
+/* ---------------- Armazenamento ---------------- */
+const K_CONFIG = "planobiblia:config:v1";
+const K_PROGRESS = "planobiblia:progress:v1";
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+};
+
+/* ---------------- Estado ---------------- */
+let deferredPrompt = null;
+let BIBLE = null;
+let lastReaderG = null;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const state = {
+  config: null, completed: [], notes: {},
+  reader: { open:false, g:0, dayIndex:null, loading:false, error:false },
+  ui: { journey:false, catchup:false, settings:false, confirmReset:false, selectedBook:null,
+        setupYears:3, setupStart:toISO(todayMidnight()), showIosHelp:false },
+};
+
+function load(){
+  const c = store.get(K_CONFIG);
+  if (c) { try { state.config = JSON.parse(c); } catch(e){} }
+  const p = store.get(K_PROGRESS);
+  if (p) { try { const o=JSON.parse(p); state.completed=o.completed||[]; state.notes=o.notes||{}; } catch(e){} }
+}
+function saveProgress(){ store.set(K_PROGRESS, JSON.stringify({completed:state.completed,notes:state.notes})); }
+
+async function ensureBible(){
+  if (BIBLE) return BIBLE;
+  const res = await fetch("./biblia.json");
+  if (!res.ok) throw new Error("falha ao carregar");
+  BIBLE = await res.json();
+  return BIBLE;
+}
+
+/* ---------------- Cálculos ---------------- */
+function derive(){
+  const cfg = state.config;
+  const plan = cfg ? buildPlan(cfg.years) : null;
+  const todayIndex = cfg ? Math.floor((todayMidnight()-parseDate(cfg.startISO))/DAY) : 0;
+  const completedSet = new Set(state.completed);
+  const readSet = new Set();
+  if (plan) state.completed.forEach((i)=>{ if(i>=0&&i<plan.totalDays){ for(let c=dayStart(i,plan.cum);c<plan.cum[i];c++) readSet.add(c); } });
+  const chaptersRead = readSet.size;
+  const pct = Math.round((chaptersRead/TOTAL_CHAPTERS)*1000)/10;
+  const bookProgress = BOOKS.map((b)=>{ let d=0; for(let c=0;c<b.chapters;c++) if(readSet.has(b.offset+c)) d++; return d/b.chapters; });
+  let streak = 0;
+  if (cfg && todayIndex>=0){ let i = completedSet.has(todayIndex)?todayIndex:todayIndex-1; while(i>=0&&completedSet.has(i)){streak++;i--;} }
+  let pending = 0;
+  if (cfg && todayIndex>=0){ const upto=Math.min(todayIndex,plan.totalDays-1); for(let i=0;i<=upto;i++) if(!completedSet.has(i)) pending++; }
+  return {plan,todayIndex,completedSet,readSet,chaptersRead,pct,bookProgress,streak,pending};
+}
+function refsForDay(i,plan){
+  const arr=[]; if(!plan||i<0||i>=plan.totalDays) return arr;
+  for(let c=dayStart(i,plan.cum);c<plan.cum[i];c++) arr.push(CHAPTER_META[c]); return arr;
+}
+
+/* ---------------- Render ---------------- */
+const root = document.getElementById("root");
+
+function render(){
+  if (!state.config) { root.innerHTML = viewSetup(); afterRender(); return; }
+  const d = derive();
+  root.innerHTML =
+    '<div class="pb-wrap">' +
+      viewTop() + viewStatus(d) + viewHero(d) + viewProgress(d) + viewJourney(d) + viewCatchup(d) + viewSettings(d) +
+      '<footer class="pb-foot">Texto: <strong>Bíblia Livre (BLIVRE)</strong> — Diego Santos, Mario Sérgio e Marco Teles · Licença Creative Commons Atribuição 3.0.<br>Leitura dentro do app, sem anúncios e disponível offline.</footer>' +
+    '</div>' +
+    viewReader(d);
+  afterRender(d);
+}
+
+function afterRender(d){
+  const ta = document.getElementById("pb-note");
+  if (ta && d) ta.value = state.notes[d.todayIndex] || "";
+  const body = document.getElementById("rd-body");
+  if (body && state.reader.g !== lastReaderG){ body.scrollTop = 0; lastReaderG = state.reader.g; }
+  try { document.body.style.overflow = state.reader.open ? "hidden" : ""; } catch(e){}
+}
+
+function viewSetup(){
+  const ui = state.ui;
+  const years = YEAR_OPTIONS.map((y)=>{
+    const p = buildPlan(y); const perDay = TOTAL_CHAPTERS/p.totalDays;
+    const hint = perDay>=1 ? "~"+perDay.toFixed(1).replace(".",",")+" cap./dia" : "leitura leve + dias de reflexão";
+    return '<button class="pb-year'+(ui.setupYears===y?" on":"")+'" data-act="setYears" data-y="'+y+'">'+
+      '<span class="pb-year-n">'+y+'</span><span class="pb-year-l">anos</span><span class="pb-year-h">'+hint+'</span></button>';
+  }).join("");
+  return '<div class="pb-wrap pb-setup">'+
+    '<div class="pb-glyph">'+ic("book",26)+'</div>'+
+    '<p class="pb-eyebrow">Plano de leitura</p>'+
+    '<h1 class="pb-title">A Bíblia inteira,<br>um dia de cada vez</h1>'+
+    '<p class="pb-lead">Escolha em quanto tempo quer concluir. O plano distribui os <strong>1.189 capítulos</strong> em leituras diárias — e o texto abre aqui dentro, sem anúncios.</p>'+
+    '<p class="pb-flabel">Duração</p><div class="pb-years">'+years+'</div>'+
+    '<p class="pb-flabel">Começar em</p>'+
+    '<input type="date" class="pb-date" id="pb-setup-date" value="'+ui.setupStart+'">'+
+    '<button class="pb-cta" data-act="start">Começar minha jornada '+ic("arrow",18)+'</button>'+
+    '<p class="pb-fine">Seu progresso fica salvo neste dispositivo. Você pode trocar o plano quando quiser.</p>'+
+  '</div>';
+}
+
+function viewTop(){
+  return '<header class="pb-top"><div class="pb-brand">'+ic("book",18)+'<span>Palavra Diária</span></div>'+
+    '<button class="pb-icbtn" data-act="toggleSettings" aria-label="Configurações">'+ic("settings",18)+'</button></header>';
+}
+
+function viewStatus(d){
+  const cfg = state.config; let parts = [];
+  if (d.todayIndex<0) parts.push('<span class="pb-badge">Começa em '+fmtShort(parseDate(cfg.startISO))+'</span>');
+  else if (d.pending===0) parts.push('<span class="pb-badge ok">'+ic("check",13)+' Você está em dia</span>');
+  else parts.push('<button class="pb-badge warn" data-act="openCatchup">'+d.pending+' '+(d.pending===1?"dia":"dias")+' para colocar em dia</button>');
+  if (d.streak>0) parts.push('<span class="pb-badge flame">'+ic("flame",13)+' '+d.streak+' '+(d.streak===1?"dia":"dias")+' seguidos</span>');
+  if (deferredPrompt) parts.push('<button class="pb-badge install" data-act="install">'+ic("download",13)+' Instalar app</button>');
+  return '<div class="pb-status">'+parts.join("")+'</div>';
+}
+
+function viewHero(d){
+  const cfg = state.config, plan = d.plan, ti = d.todayIndex;
+  if (ti<0) return '<section class="pb-hero"><p class="pb-hero-eb">Sua jornada começa em breve</p>'+
+    '<div class="pb-hero-ref">'+fmtLong(dateForIndex(cfg.startISO,0))+'</div>'+
+    '<p class="pb-hero-note">A primeira leitura aparece aqui no dia de início. Prepare o coração. ✨</p></section>';
+  if (ti>=plan.totalDays) return '<section class="pb-hero pb-hero-done">'+ic("sparkles",26)+
+    '<p class="pb-hero-eb">Jornada concluída</p><div class="pb-hero-ref">Você percorreu a Bíblia inteira</div>'+
+    '<p class="pb-hero-note">Do primeiro versículo ao último. Que a Palavra continue com você.</p></section>';
+
+  const done = d.completedSet.has(ti);
+  const refs = refsForDay(ti,plan);
+  const isRef = refs.length===0;
+  const dateObj = dateForIndex(cfg.startISO,ti);
+  let body;
+  if (isRef){
+    const prev = refsForDay(ti-1,plan);
+    const prevHtml = prev.length ? '<p class="pb-hero-note">Trecho de ontem: '+prev.map((m)=>'<button class="pb-linkbtn" data-act="read" data-g="'+m.g+'">'+m.book+' '+m.chapter+'</button>').join(", ")+'</p>' : "";
+    body = '<span class="pb-tag reflect">'+ic("sun",12)+' Dia de reflexão</span>'+
+      '<div class="pb-hero-ref small">'+esc(REFLECTIONS[ti%REFLECTIONS.length])+'</div>'+ prevHtml +
+      '<div class="pb-hero-actions"><button class="pb-check'+(done?" on":"")+'" data-act="toggleToday">'+ic("check",17)+' '+(done?"Reflexão concluída":"Concluí minha reflexão")+'</button></div>';
+  } else {
+    const tag = refs[0].testament==="AT" ? '<span class="pb-tag at">Antigo Testamento</span>' : '<span class="pb-tag nt">Novo Testamento</span>';
+    const refHtml = refs.map((m)=>'<button class="pb-ref" data-act="read" data-g="'+m.g+'" data-day="'+ti+'">'+m.book+' '+m.chapter+' '+ic("book",16)+'</button>').join("");
+    body = tag + '<div class="pb-refs">'+refHtml+'</div>'+
+      '<div class="pb-hero-actions">'+
+        '<button class="pb-open" data-act="read" data-g="'+refs[0].g+'" data-day="'+ti+'">'+ic("book",16)+' Ler agora</button>'+
+        '<button class="pb-check'+(done?" on":"")+'" data-act="toggleToday">'+ic("check",17)+' '+(done?"Lido":"Marcar como lido")+'</button>'+
+      '</div>';
+  }
+  return '<section class="pb-hero'+(done?" read":"")+'">'+
+    '<p class="pb-hero-eb">Dia '+(ti+1)+' de '+plan.totalDays+' · <span class="cap">'+fmtLong(dateObj)+'</span></p>'+
+    body +
+    '<div class="pb-notebox"><label class="pb-note-label" for="pb-note">'+ic("pen",13)+' Anotações de hoje</label>'+
+    '<textarea class="pb-note" id="pb-note" rows="2" placeholder="O que Deus falou com você hoje?"></textarea></div>'+
+  '</section>';
+}
+
+function viewProgress(d){
+  const cfg = state.config, plan = d.plan;
+  const term = fmtFull(dateForIndex(cfg.startISO,plan.totalDays-1));
+  const diasRest = Math.max(plan.totalDays-(d.todayIndex+1),0);
+  return '<section class="pb-card">'+
+    '<div class="pb-prog-head"><div><div class="pb-prog-pct">'+String(d.pct).replace(".",",")+'%</div>'+
+    '<div class="pb-prog-sub">da Bíblia lida</div></div>'+
+    '<div class="pb-prog-right"><span>'+d.chaptersRead+'</span> de '+TOTAL_CHAPTERS+' capítulos</div></div>'+
+    '<div class="pb-bar"><div class="pb-bar-fill" style="width:'+Math.max(d.pct,0.6)+'%"></div></div>'+
+    '<div class="pb-stats">'+
+      stat("Capítulos restantes", TOTAL_CHAPTERS-d.chaptersRead, false)+
+      stat("Término previsto", term, true)+
+      stat("Dias restantes", diasRest, false)+
+    '</div></section>';
+}
+function stat(label,value,small){
+  return '<div class="pb-stat"><div class="pb-stat-v'+(small?" sm":"")+'">'+esc(value)+'</div><div class="pb-stat-l">'+label+'</div></div>';
+}
+
+function viewJourney(d){
+  const open = state.ui.journey; let inner = "";
+  if (open){
+    const groups = ["AT","NT"].map((t)=>{
+      const nodes = BOOKS.map((b,i)=>{ if(b.testament!==t) return "";
+        const p = d.bookProgress[i]; const cls = p>=1?"full":(p>0?"part":"empty");
+        return '<button class="pb-node '+cls+(state.ui.selectedBook===i?" sel":"")+'" data-act="selectBook" data-i="'+i+'" title="'+esc(b.name)+'"></button>';
+      }).join("");
+      return '<div class="pb-strand-group"><p class="pb-strand-title">'+(t==="AT"?"Antigo Testamento":"Novo Testamento")+'</p><div class="pb-strand">'+nodes+'</div></div>';
+    }).join("");
+    let label = 'Toque em um livro para ver o progresso';
+    if (state.ui.selectedBook!=null){ const b=BOOKS[state.ui.selectedBook]; const done=Math.round(d.bookProgress[state.ui.selectedBook]*b.chapters);
+      label = '<strong>'+esc(b.name)+'</strong> · '+done+'/'+b.chapters+' capítulos'; }
+    inner = '<div class="pb-journey">'+groups+'<div class="pb-node-label">'+label+'</div></div>';
+  }
+  return '<section class="pb-card"><button class="pb-collapse" data-act="toggleJourney"><span>'+ic("feather",15)+' Trilha pela Bíblia</span>'+
+    '<span class="chev'+(open?" rot":"")+'">'+ic("chevron",16)+'</span></button>'+inner+'</section>';
+}
+
+function viewCatchup(d){
+  const open = state.ui.catchup; let inner = "";
+  if (open){
+    const cfg = state.config, plan = d.plan;
+    const upto = Math.min(d.todayIndex,plan.totalDays-1);
+    if (upto<0) inner = '<p class="pb-empty">O plano ainda não começou.</p>';
+    else {
+      const from = Math.max(0,upto-13); let rows="";
+      for (let i=upto;i>=from;i--){
+        const refs = refsForDay(i,plan); const isRef = refs.length===0;
+        const label = isRef ? "Reflexão" : refs.map((m)=>m.book+" "+m.chapter).join(" · ");
+        const dt = dateForIndex(cfg.startISO,i); const done = d.completedSet.has(i);
+        const readBtn = isRef ? "" : '<button class="pb-catch-read" data-act="read" data-g="'+refs[0].g+'" data-day="'+i+'" aria-label="Ler">'+ic("book",15)+'</button>';
+        const mainAct = isRef ? 'toggleDay' : 'read';
+        const mainData = isRef ? ('data-i="'+i+'"') : ('data-g="'+refs[0].g+'" data-day="'+i+'"');
+        rows += '<div class="pb-catch-row'+(done?" done":"")+'">'+
+          '<button class="pb-cbox'+(done?" on":"")+'" data-act="toggleDay" data-i="'+i+'" aria-label="Marcar como lido">'+(done?ic("check",14):"")+'</button>'+
+          '<button class="pb-catch-main" data-act="'+mainAct+'" '+mainData+'>'+
+          '<span class="pb-catch-ref">'+esc(label)+'</span>'+
+          '<span class="pb-catch-date">'+fmtShort(dt)+(i===d.todayIndex?" · hoje":"")+'</span></button>'+
+          readBtn+'</div>';
+      }
+      inner = '<div class="pb-catch">'+rows+'</div>';
+    }
+  }
+  return '<section class="pb-card"><button class="pb-collapse" data-act="toggleCatchup"><span>'+ic("calendar",15)+' Colocar em dia</span>'+
+    '<span class="chev'+(open?" rot":"")+'">'+ic("chevron",16)+'</span></button>'+inner+'</section>';
+}
+
+function viewSettings(d){
+  if (!state.ui.settings) return "";
+  const cfg = state.config; let install = "";
+  if (deferredPrompt) install = '<button class="pb-setbtn" data-act="install">'+ic("download",15)+' Instalar na tela inicial</button>';
+  else if (isIOS) install = '<button class="pb-setbtn" data-act="iosHelp">'+ic("download",15)+' Instalar no iPhone/iPad</button>'+
+    (state.ui.showIosHelp ? '<p class="pb-ios">No Safari, toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>.</p>' : "");
+  else install = '<p class="pb-ios">Para instalar, abra o menu do navegador e escolha <strong>Instalar app</strong> / <strong>Adicionar à tela inicial</strong>.</p>';
+  const resetBlock = state.ui.confirmReset
+    ? '<div class="pb-confirm"><p>Isso apaga seu progresso atual. Tem certeza?</p><div class="pb-confirm-row">'+
+      '<button class="pb-btn-ghost" data-act="cancelReset">Cancelar</button>'+
+      '<button class="pb-btn-danger" data-act="reset">Sim, recomeçar</button></div></div>'
+    : '<button class="pb-setbtn" data-act="confirmReset">'+ic("rotate",15)+' Trocar plano / recomeçar</button>';
+  return '<section class="pb-card">'+
+    '<p class="pb-set-line">Plano de <strong>'+cfg.years+' anos</strong> · início '+fmtFull(parseDate(cfg.startISO))+'</p>'+
+    install + '<div style="height:6px"></div>' + resetBlock + '</section>';
+}
+
+/* ---------------- Leitor ---------------- */
+function viewReader(d){
+  const r = state.reader;
+  if (!r.open) return "";
+  const meta = CHAPTER_META[r.g];
+  const canMark = r.dayIndex!=null;
+  const done = canMark && d && d.completedSet.has(r.dayIndex);
+
+  let bodyInner;
+  if (r.error){
+    bodyInner = '<div class="rd-loading">'+ic("book",30)+'<div>Não consegui carregar o texto agora.<br>Verifique a conexão e tente abrir de novo.</div></div>';
+  } else if (r.loading || !BIBLE){
+    bodyInner = '<div class="rd-loading"><div class="rd-spin"></div><div>Carregando a Bíblia…<br><span style="font-size:11px;color:var(--muted2)">só na primeira vez; depois fica offline</span></div></div>';
+  } else {
+    const verses = BIBLE[meta.bi][meta.ci];
+    const vs = verses.map((t,k)=>'<p class="rd-v"><span class="rd-n">'+(k+1)+'</span>'+esc(t)+'</p>').join("");
+    bodyInner = '<div class="rd-inner">'+vs+
+      '<p class="rd-credit">Bíblia Livre (BLIVRE) · Diego Santos, Mario Sérgio e Marco Teles<br>Creative Commons Atribuição 3.0</p></div>';
+  }
+
+  const canPrev = r.g>0, canNext = r.g<TOTAL_CHAPTERS-1;
+  const markBtn = canMark
+    ? '<button class="rd-mark'+(done?" on":"")+'" data-act="readerMark">'+ic("check",16)+' '+(done?"Lido":"Marcar como lido")+'</button>'
+    : '<div class="rd-spacer"></div>';
+
+  return '<div class="rd" role="dialog" aria-modal="true">'+
+    '<div class="rd-head"><div class="rd-htxt">'+
+      '<div class="rd-sub">'+(meta.testament==="AT"?"Antigo Testamento":"Novo Testamento")+'</div>'+
+      '<div class="rd-title">'+esc(meta.book)+' '+meta.chapter+'</div></div>'+
+      '<button class="rd-close" data-act="readerClose" aria-label="Fechar">'+ic("x",18)+'</button></div>'+
+    '<div class="rd-body" id="rd-body">'+bodyInner+'</div>'+
+    '<div class="rd-foot">'+
+      '<button class="rd-nav" data-act="readerPrev"'+(canPrev?"":" disabled")+' aria-label="Capítulo anterior">'+ic("left",16)+'</button>'+
+      markBtn +
+      '<button class="rd-nav" data-act="readerNext"'+(canNext?"":" disabled")+' aria-label="Próximo capítulo">'+ic("right",16)+'</button>'+
+    '</div></div>';
+}
+
+/* ---------------- Ações ---------------- */
+let noteTimer = null;
+
+root.addEventListener("click", (e)=>{
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const act = el.dataset.act;
+  const i = el.dataset.i!=null && el.dataset.i!=="" ? parseInt(el.dataset.i,10) : null;
+  const g = el.dataset.g!=null && el.dataset.g!=="" ? parseInt(el.dataset.g,10) : null;
+  const day = el.dataset.day!=null && el.dataset.day!=="" ? parseInt(el.dataset.day,10) : null;
+  const d = state.config ? derive() : null;
+
+  switch(act){
+    case "setYears": state.ui.setupYears = parseInt(el.dataset.y,10); render(); break;
+    case "start": {
+      const di = document.getElementById("pb-setup-date");
+      const startISO = di && di.value ? di.value : state.ui.setupStart;
+      state.config = { years: state.ui.setupYears, startISO };
+      store.set(K_CONFIG, JSON.stringify(state.config)); render(); break;
+    }
+    case "toggleToday": toggleDay(d.todayIndex); break;
+    case "toggleDay": toggleDay(i); break;
+    case "read": openReader(g, day); break;
+    case "readerPrev": if(state.reader.g>0){ state.reader.g--; } render(); break;
+    case "readerNext": if(state.reader.g<TOTAL_CHAPTERS-1){ state.reader.g++; } render(); break;
+    case "readerClose": state.reader.open=false; render(); break;
+    case "readerMark": if(state.reader.dayIndex!=null) toggleDay(state.reader.dayIndex); break;
+    case "toggleSettings": state.ui.settings=!state.ui.settings; state.ui.confirmReset=false; render(); break;
+    case "toggleJourney": state.ui.journey=!state.ui.journey; render(); break;
+    case "toggleCatchup": state.ui.catchup=!state.ui.catchup; render(); break;
+    case "openCatchup": state.ui.catchup=true; render(); break;
+    case "selectBook": state.ui.selectedBook = (state.ui.selectedBook===i?null:i); render(); break;
+    case "confirmReset": state.ui.confirmReset=true; render(); break;
+    case "cancelReset": state.ui.confirmReset=false; render(); break;
+    case "reset": doReset(); break;
+    case "iosHelp": state.ui.showIosHelp=!state.ui.showIosHelp; render(); break;
+    case "install": doInstall(); break;
+  }
+});
+
+root.addEventListener("input", (e)=>{
+  if (e.target.id==="pb-note"){
+    const d = derive();
+    state.notes[d.todayIndex] = e.target.value;
+    clearTimeout(noteTimer); noteTimer = setTimeout(saveProgress, 500);
+  }
+});
+root.addEventListener("change", (e)=>{ if (e.target.id==="pb-setup-date") state.ui.setupStart = e.target.value; });
+
+function toggleDay(i){
+  if (i==null || i<0) return;
+  const idx = state.completed.indexOf(i);
+  if (idx>=0) state.completed.splice(idx,1); else state.completed.push(i);
+  saveProgress(); render();
+}
+function doReset(){
+  state.config=null; state.completed=[]; state.notes={};
+  state.reader.open=false;
+  state.ui.settings=false; state.ui.confirmReset=false; state.ui.setupYears=3; state.ui.setupStart=toISO(todayMidnight());
+  store.set(K_CONFIG,""); saveProgress(); render();
+}
+async function doInstall(){
+  if (deferredPrompt){ deferredPrompt.prompt(); try { await deferredPrompt.userChoice; } catch(e){} deferredPrompt=null; render(); }
+  else if (isIOS){ state.ui.settings=true; state.ui.showIosHelp=true; render(); }
+}
+async function openReader(g, dayIndex){
+  if (g==null) return;
+  state.reader = { open:true, g:g, dayIndex:(dayIndex==null?null:dayIndex), loading:!BIBLE, error:false };
+  lastReaderG = null;
+  render();
+  if (!BIBLE){
+    try { await ensureBible(); state.reader.loading=false; }
+    catch(e){ state.reader.loading=false; state.reader.error=true; }
+    render();
+  }
+}
+
+/* ---------------- PWA ---------------- */
+window.addEventListener("beforeinstallprompt", (e)=>{ e.preventDefault(); deferredPrompt=e; render(); });
+window.addEventListener("appinstalled", ()=>{ deferredPrompt=null; render(); });
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{ navigator.serviceWorker.register("./sw.js").catch(()=>{}); });
+}
+
+/* ---------------- Início ---------------- */
+load();
+render();
+setTimeout(()=>{ ensureBible().catch(()=>{}); }, 1500);
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /* Palavra Diária — Service Worker */
-const CACHE = "palavra-diaria-v2";
+const CACHE = "palavra-diaria-v3";
 const ASSETS = [
   "./",
   "./index.html",
